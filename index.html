@@ -1,0 +1,330 @@
+import React, { useState } from 'react';
+import { AlertTriangle, Shield, Camera, Upload, CheckCircle, X, Bug, Leaf, Droplets } from 'lucide-react';
+
+const DiseaseDetection: React.FC = () => {
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResults, setAnalysisResults] = useState<any>(null);
+
+  const mockDiseases = [
+    {
+      name: 'Powdery Mildew',
+      confidence: 89.3,
+      severity: 'moderate',
+      description: 'A fungal infection characterized by white, powdery spots on leaves',
+      symptoms: ['White powdery coating on leaves', 'Yellowing of affected areas', 'Stunted growth'],
+      treatment: [
+        'Improve air circulation around the plant',
+        'Reduce humidity levels',
+        'Apply fungicidal spray',
+        'Remove affected leaves'
+      ],
+      prevention: [
+        'Avoid overhead watering',
+        'Ensure proper spacing between plants',
+        'Monitor humidity levels'
+      ]
+    },
+    {
+      name: 'Spider Mites',
+      confidence: 76.8,
+      severity: 'mild',
+      description: 'Tiny pests that create fine webbing on plants and cause stippling damage',
+      symptoms: ['Fine webbing on leaves', 'Yellow stippling on leaf surface', 'Leaf bronzing'],
+      treatment: [
+        'Increase humidity around the plant',
+        'Spray with insecticidal soap',
+        'Wipe leaves with damp cloth',
+        'Use predatory mites as biological control'
+      ],
+      prevention: [
+        'Maintain adequate humidity',
+        'Regular leaf cleaning',
+        'Quarantine new plants'
+      ]
+    }
+  ];
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const imageDataUrl = e.target?.result as string;
+      setSelectedImage(imageDataUrl);
+      analyzeForDiseases(imageDataUrl);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const analyzeForDiseases = async (imageData: string) => {
+    setIsAnalyzing(true);
+    setAnalysisResults(null);
+
+    // Simulate AI analysis
+    await new Promise(resolve => setTimeout(resolve, 4000));
+
+    const results = {
+      healthStatus: 'issues_detected',
+      overallHealth: 72,
+      diseases: mockDiseases,
+      recommendations: [
+        'Isolate the plant from other healthy plants',
+        'Improve ventilation in the growing area',
+        'Monitor watering schedule carefully',
+        'Consider professional treatment if symptoms worsen'
+      ],
+      image: imageData
+    };
+
+    setAnalysisResults(results);
+    setIsAnalyzing(false);
+  };
+
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case 'mild': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+      case 'moderate': return 'text-orange-600 bg-orange-50 border-orange-200';
+      case 'severe': return 'text-red-600 bg-red-50 border-red-200';
+      default: return 'text-gray-600 bg-gray-50 border-gray-200';
+    }
+  };
+
+  const getSeverityIcon = (severity: string) => {
+    switch (severity) {
+      case 'mild': return '⚠️';
+      case 'moderate': return '🔶';
+      case 'severe': return '🚨';
+      default: return '❔';
+    }
+  };
+
+  const resetAnalysis = () => {
+    setSelectedImage(null);
+    setAnalysisResults(null);
+    setIsAnalyzing(false);
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Disease Detection</h2>
+        <p className="text-gray-600">
+          AI-powered analysis to detect plant diseases and pests
+        </p>
+      </div>
+
+      {!selectedImage && (
+        <div className="bg-white rounded-2xl shadow-lg p-8">
+          <div className="text-center space-y-6">
+            <div className="bg-red-50 p-4 rounded-full w-20 h-20 flex items-center justify-center mx-auto">
+              <AlertTriangle className="h-10 w-10 text-red-500" />
+            </div>
+            
+            <div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Upload Plant Image</h3>
+              <p className="text-gray-600">
+                Take a clear photo of your plant focusing on any problematic areas
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <label className="flex items-center justify-center space-x-2 bg-red-500 hover:bg-red-600 text-white font-medium py-3 px-6 rounded-xl cursor-pointer transition-colors">
+                <Camera className="h-5 w-5" />
+                <span>Take Photo</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+              </label>
+              <label className="flex items-center justify-center space-x-2 bg-gray-500 hover:bg-gray-600 text-white font-medium py-3 px-6 rounded-xl cursor-pointer transition-colors">
+                <Upload className="h-5 w-5" />
+                <span>Upload Image</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+              </label>
+            </div>
+
+            <div className="bg-gray-50 rounded-xl p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+                <div className="text-center">
+                  <Bug className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                  <p>Pest Detection</p>
+                </div>
+                <div className="text-center">
+                  <Leaf className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                  <p>Disease Identification</p>
+                </div>
+                <div className="text-center">
+                  <Shield className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                  <p>Treatment Plans</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedImage && (
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+          <div className="relative">
+            <img
+              src={selectedImage}
+              alt="Plant analysis"
+              className="w-full h-64 object-cover"
+            />
+            {!isAnalyzing && !analysisResults && (
+              <button
+                onClick={resetAnalysis}
+                className="absolute top-4 right-4 bg-white bg-opacity-90 hover:bg-opacity-100 p-2 rounded-full transition-all"
+              >
+                <X className="h-5 w-5 text-gray-600" />
+              </button>
+            )}
+          </div>
+
+          {isAnalyzing && (
+            <div className="p-8 text-center">
+              <div className="flex justify-center mb-4">
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-red-500 border-t-transparent"></div>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Analyzing for Diseases...</h3>
+              <p className="text-gray-600">Our AI is scanning for pests, diseases, and health issues</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {analysisResults && (
+        <div className="space-y-6">
+          {/* Health Overview */}
+          <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <div className={`p-3 rounded-xl ${analysisResults.healthStatus === 'healthy' ? 'bg-green-50' : 'bg-orange-50'}`}>
+                  {analysisResults.healthStatus === 'healthy' ? 
+                    <CheckCircle className="h-6 w-6 text-green-600" /> :
+                    <AlertTriangle className="h-6 w-6 text-orange-600" />
+                  }
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900">Health Analysis</h3>
+                  <p className="text-gray-600">Overall plant condition assessment</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className={`text-3xl font-bold ${analysisResults.overallHealth > 80 ? 'text-green-600' : analysisResults.overallHealth > 60 ? 'text-yellow-600' : 'text-red-600'}`}>
+                  {analysisResults.overallHealth}%
+                </div>
+                <p className="text-sm text-gray-500">Health Score</p>
+              </div>
+            </div>
+            
+            <div className="w-full bg-gray-200 rounded-full h-3">
+              <div 
+                className={`h-3 rounded-full transition-all duration-1000 ${analysisResults.overallHealth > 80 ? 'bg-green-500' : analysisResults.overallHealth > 60 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                style={{ width: `${analysisResults.overallHealth}%` }}
+              ></div>
+            </div>
+          </div>
+
+          {/* Detected Issues */}
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold text-gray-900">Detected Issues</h3>
+            {analysisResults.diseases.map((disease: any, index: number) => (
+              <div key={index} className="bg-white rounded-2xl shadow-lg p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-start space-x-3">
+                    <div className="text-2xl">
+                      {getSeverityIcon(disease.severity)}
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-semibold text-gray-900">{disease.name}</h4>
+                      <p className="text-gray-600 text-sm">{disease.description}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-gray-900">{disease.confidence}%</div>
+                    <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium border ${getSeverityColor(disease.severity)}`}>
+                      {disease.severity}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <h5 className="font-semibold text-gray-900 mb-3">Symptoms</h5>
+                    <ul className="space-y-2">
+                      {disease.symptoms.map((symptom: string, idx: number) => (
+                        <li key={idx} className="flex items-start space-x-2">
+                          <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                          <span className="text-sm text-gray-600">{symptom}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h5 className="font-semibold text-gray-900 mb-3">Treatment</h5>
+                    <ul className="space-y-2">
+                      {disease.treatment.map((treatment: string, idx: number) => (
+                        <li key={idx} className="flex items-start space-x-2">
+                          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                          <span className="text-sm text-gray-600">{treatment}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h5 className="font-semibold text-gray-900 mb-3">Prevention</h5>
+                    <ul className="space-y-2">
+                      {disease.prevention.map((prevention: string, idx: number) => (
+                        <li key={idx} className="flex items-start space-x-2">
+                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                          <span className="text-sm text-gray-600">{prevention}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* General Recommendations */}
+          <div className="bg-gradient-to-r from-blue-50 to-green-50 rounded-2xl p-6 border border-blue-200">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">💊 Treatment Recommendations</h3>
+            <div className="space-y-3">
+              {analysisResults.recommendations.map((recommendation: string, index: number) => (
+                <div key={index} className="flex items-start space-x-3">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <p className="text-gray-700">{recommendation}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="text-center">
+            <button
+              onClick={resetAnalysis}
+              className="bg-red-500 hover:bg-red-600 text-white font-medium py-3 px-6 rounded-xl transition-colors"
+            >
+              Analyze Another Plant
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default DiseaseDetection;
